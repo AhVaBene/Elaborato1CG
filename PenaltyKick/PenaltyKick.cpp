@@ -22,7 +22,7 @@ float adder = 4, dx = 0, posx_palla = 0.0, posy_palla = 55.0, posx, posy, w_upda
 bool collision = false;
 char esitoTiro[100] = "";
 
-Figura Piede, Gamba, Corpo, Mano, Testa, Retta, Palla, Prato, Porta, Cielo;
+Figura Piede, Gamba, Corpo, Mano, Testa, Retta, Palla, Prato, Porta, Cielo, Occhio, Bocca;
 vector<Figura> Scena;
 
 void updatePalla(int value) {
@@ -114,7 +114,7 @@ void INIT_VAO(void)
 	Scena.push_back(Porta);
 
 	//Costruisco il puntatore-retta
-	Retta.CP.push_back(vec3((float)width / 2.0, 55.0, 0));
+	Retta.CP.push_back(vec3(0.5, 55.0 / (float)height, 0));
 	Retta.colCP.push_back(vec4(1.0, 0.0, 0.0, 1.0));
 	Retta.CP.push_back(vec3(0.0, 0.0, 0));
 	Retta.colCP.push_back(vec4(1.0, 0.0, 0.0, 1.0));
@@ -131,7 +131,7 @@ void INIT_VAO(void)
 	Scena.push_back(Palla);
 
 	//Costruisco il portiere
-	costruisci_portiere(&Piede, &Gamba, &Corpo, &Mano, &Testa);
+	costruisci_portiere(&Piede, &Gamba, &Corpo, &Mano, &Testa, &Occhio, &Bocca);
 	crea_VAO_Vector(&Piede);
 	Scena.push_back(Piede);
 	Scena.push_back(Piede);
@@ -146,6 +146,11 @@ void INIT_VAO(void)
 	Scena.push_back(Mano);
 	crea_VAO_Vector(&Testa);
 	Scena.push_back(Testa);
+	crea_VAO_Vector(&Occhio);
+	Scena.push_back(Occhio);
+	Scena.push_back(Occhio);
+	crea_VAO_CP(&Bocca);
+	Scena.push_back(Bocca);
 
 	MatProj = glGetUniformLocation(programId, "Projection");
 	MatModel = glGetUniformLocation(programId, "Model");
@@ -214,7 +219,7 @@ void drawScene() {
 		glUniform1i(lsceltafs, Scena[3].sceltaFS);
 		glBindVertexArray(Scena[3].VAO);
 		Scena[3].Model = mat4(1.0);
-		//Scena[3].Model = translate(Scena[3].Model, vec3((float)width / 2.0, (float)height / 2.0, 0.0));
+		Scena[3].Model = scale(Scena[3].Model, vec3((float)width, (float)height, 0.0));
 		glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(Scena[3].Model));
 		glDrawArrays(GL_LINE_STRIP, 0, Scena[3].CP.size());
 		glBindVertexArray(0);
@@ -321,7 +326,32 @@ void drawScene() {
 	glBindVertexArray(Scena[13].VAO);
 	glDrawArrays(GL_TRIANGLE_FAN, 0, Scena[13].vertici.size() - 6);
 	glBindVertexArray(0);
-	//testo lato sx(info sulla partita)
+	//occhio sinistro
+	Scena[14].Model = mat4(1.0);
+	Scena[14].Model = translate(Scena[14].Model, vec3((float)width / 2 - 8.0 + dx, (float)height / 1.82, 0.0));
+	Scena[14].Model = scale(Scena[14].Model, vec3(5.0, 7.0, 1.0));
+	glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(Scena[14].Model));
+	glBindVertexArray(Scena[14].VAO);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, Scena[14].vertici.size() - 6);
+	glBindVertexArray(0);
+	//occhio destro
+	Scena[15].Model = mat4(1.0);
+	Scena[15].Model = translate(Scena[15].Model, vec3((float)width / 2.0 + 8.0 + dx, (float)height / 1.82, 0.0));
+	Scena[15].Model = scale(Scena[15].Model, vec3(5.0, 7.0, 1.0));
+	glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(Scena[15].Model));
+	glBindVertexArray(Scena[15].VAO);
+	glDrawArrays(GL_TRIANGLE_FAN, 0, Scena[15].vertici.size() - 6);
+	glBindVertexArray(0);
+	//bocca
+	glBindVertexArray(Scena[16].VAO);
+	Scena[16].Model = mat4(1.0);
+	Scena[16].Model = translate(Scena[16].Model, vec3((float)width / 2.0 + dx, (float)height / 1.91, 0.0));
+	Scena[16].Model = scale(Scena[16].Model, vec3(20.0, 5.0, 0.0));
+	glUniformMatrix4fv(MatModel, 1, GL_FALSE, value_ptr(Scena[16].Model));
+	glDrawArrays(GL_LINE_STRIP, 0, Scena[6].CP.size());
+	glBindVertexArray(0);
+
+	//testo
 	char src[15];
 	sprintf_s(src, "%d", ngol);
 	char dest[15] = "GOL = ";
@@ -362,6 +392,9 @@ void onMouse(int x, int y) {
 	//uso la proporzione x_ottenuto : w_nuovaFinestra = x_equivNellaPrimaFinestra : w_primaFinestra (e analoga in y-h) dato che le proporzioni restano le stesse
 	float mousex = ((float)x * (float)width) / w_update; //== x_equivNellaPrimaFinestra
 	float mousey = (h_window - (float)y) * (float)height / h_update;
+	//riduco nel quadrato (-1, -1; 1, 1)
+	mousex /= (float)width;
+	mousey /= (float)height;
 	if (Retta.CP.size() > 1) {
 		Retta.CP.pop_back();
 	}

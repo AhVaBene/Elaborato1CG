@@ -204,7 +204,7 @@ void costruisci_porta(vec4 color_top, vec4 color_bot, Figura* porta, int width, 
 	porta->sceltaFS = 0;
 }
 
-void costruisci_portiere(Figura* piede, Figura* gamba, Figura* corpo, Figura* mano, Figura* testa) {
+void costruisci_portiere(Figura* piede, Figura* gamba, Figura* corpo, Figura* mano, Figura* testa, Figura* occhio, Figura* bocca) {
 	Hermite geom;
 	vec4 col_top = vec4{ 102.0 / 255.0, 51.0 / 255.0, 0.0 / 255.0, 1.0000 };
 	vec4 col_bottom = vec4{ 1.0, 0.0, 0.0, 1.0000 };
@@ -274,4 +274,19 @@ void costruisci_portiere(Figura* piede, Figura* gamba, Figura* corpo, Figura* ma
 	col_bottom = vec4{ 255.0 / 255.0, 153.0 / 255.0, 153.0 / 255.0, 1.0 };
 	testa->nTriangles = 30;
 	costruisci_cerchio(col_top, col_bottom, testa);
+	testa->sceltaFS = 0;
+
+	col_top = vec4{ 0.25, 0.15, 0.0, 1.0 };
+	col_bottom = vec4{ 0.25, 0.15, 0.0, 1.0 };
+	occhio->nTriangles = 30;
+	costruisci_cerchio(col_top, col_bottom, occhio);
+	occhio->sceltaFS = 0;
+
+	col_top = vec4{ 0.0, 0.0, 0.0, 1.0 };
+	col_bottom = vec4{ 0.0, 0.0, 0.0, 1.0 };
+	bocca->CP.push_back(vec3(-0.5, 0.0, 0.0));
+	bocca->colCP.push_back(col_top);
+	bocca->CP.push_back(vec3(0.5, 0.0, 0.0));
+	bocca->colCP.push_back(col_bottom);
+	bocca->sceltaFS = 0;
 }
